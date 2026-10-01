@@ -13,7 +13,7 @@ A web-based habit tracker for two equal partners that maintains one shared strea
 - [x] Create shared streak record
       Set up the Supabase table for the single shared streak record that holds current length and last logged date.
 
-- [ ] Add Supabase authentication
+- [x] Add Supabase authentication
       Implement sign-in so the two equal partners can both access the shared tracker with their own accounts.
 
 ### Core Product
