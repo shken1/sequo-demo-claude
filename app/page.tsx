@@ -1,11 +1,14 @@
 import { requireUser } from "@/lib/auth";
+import { fetchStreak } from "@/lib/streak-api";
 
 import { SignOutButton } from "./SignOutButton";
+import { StreakLength } from "./StreakLength";
 
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   const user = await requireUser();
+  const streak = await fetchStreak();
 
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-3xl flex-col gap-8 px-4 py-8 sm:px-8 sm:py-12">
@@ -22,6 +25,7 @@ export default async function HomePage() {
         <h1 className="glow-primary text-center font-heading text-lg leading-relaxed tracking-[0.18em] text-primary sm:text-2xl">
           Shared Streak
         </h1>
+        <StreakLength streakLength={streak.streakLength} />
       </section>
     </main>
   );
