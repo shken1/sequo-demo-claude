@@ -1,9 +1,8 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-import type { LogTodayResponse } from "@/types/log";
+import { logTodayAction } from "@/app/actions";
 
 type Status = "idle" | "pending" | "logged" | "already-logged" | "error";
 
@@ -14,17 +13,14 @@ const MESSAGES: Record<Exclude<Status, "idle" | "pending">, string> = {
 };
 
 export function LogTodayButton() {
-  const router = useRouter();
   const [status, setStatus] = useState<Status>("idle");
 
   async function handleClick(): Promise<void> {
     setStatus("pending");
     try {
-      const response = await fetch("/api/streak", { method: "POST" });
-      if (!response.ok) throw new Error(`Log request failed with ${response.status}.`);
-      const result = (await response.json()) as LogTodayResponse;
+      const result = await logTodayAction();
+      if ("error" in result) throw new Error(result.error);
       setStatus(result.outcome);
-      router.refresh();
     } catch {
       setStatus("error");
     }

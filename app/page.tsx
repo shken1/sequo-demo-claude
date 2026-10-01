@@ -1,5 +1,5 @@
 import { requireUser } from "@/lib/auth";
-import { fetchStreak } from "@/lib/streak-api";
+import { selectStreak } from "@/lib/streak-store";
 
 import { SignOutButton } from "./SignOutButton";
 import { LogTodayButton } from "./LogTodayButton";
@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   const user = await requireUser();
-  const streak = await fetchStreak();
+  const streak = selectStreak();
 
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-3xl flex-col gap-8 px-4 py-8 sm:px-8 sm:py-12">

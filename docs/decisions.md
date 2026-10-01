@@ -49,3 +49,6 @@
     - **Auth:** `/api/auth/[action]` handles `sign-up`, `sign-in`, `magic-link` and `sign-out` (POST) and `magic` (GET, redeems a link).
 
     The client endpoints for sign-up, sign-in, sign-out and the magic-link request did not change. Logging moved from `/api/streak/log` to `POST /api/streak`, and magic links now point to `/api/auth/magic`.
+
+15. **Page and logging in one process (supersedes part of #14)**  
+    On Vercel, several instances of one function can run at once, each with its own memory. The root page fetching `/api/streak` was a second request that could land on a different instance than the one holding the row. Partner B was shown 0 right after A logged 1. The root page now reads the row directly on the server (`selectStreak()`), and "Log Today" is a Server Action (`logTodayAction` in `app/actions.ts`), so reading and writing run in the page's own process, as in the other runs of this plan. `/api/streak` (GET, POST and the development-only PATCH) and `lib/streak-api.ts` are removed. This departs from invariant 2 (data access only through API routes) for hosting without a shared store, and is recorded here for that reason. In-memory data on serverless hosting is still per instance. Under concurrent traffic, two partners can briefly see different values, and every redeploy or cold start resets the streak.
