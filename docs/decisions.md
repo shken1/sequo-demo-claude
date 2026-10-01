@@ -1,0 +1,25 @@
+# Decisions
+
+1. **Tech Stack Selection**  
+   The project uses TypeScript, Next.js, Tailwind CSS, Supabase for database and data access, and Vercel for hosting with npm as the package manager. This stack was chosen for rapid web development, real-time capabilities, and simple deployment.
+
+2. **Data Storage Approach**  
+   A single shared streak record will be stored in Supabase and updated by either partner. This directly implements the clarifying answer “Shared single record updated by both” and the structured idea’s core object of one shared streak.
+
+3. **Authentication Approach**  
+   No authentication in MVP. The MVP scope requires only that both equal partners can view the shared streak and log days; no user-specific data, roles, or access controls are needed.
+
+4. **Product Scope**  
+   The MVP is limited to displaying the current shared streak length and allowing either partner to log the current day to extend it via a browser-based web app. Individual streaks, private data, and history of past logged days are out of scope per the structured idea.
+
+5. **Access Method**  
+   The tracker is delivered as a web app accessed in the browser. This follows the clarifying answer that selected “Web app accessed in browser” over a mobile app.
+
+6. **Equal Partners Model**  
+   Both users are equal partners with identical capabilities to view and extend the shared streak. This implements the structured idea and the clarifying answer “Both of us as equal partners.”
+
+7. **In-memory persistence for this build**  
+   This build runs with no external database: wherever the plan calls for Supabase (data, data access, auth, real-time), the app uses in-memory server state instead, so it runs with `npm run dev` and nothing else. The shared record lives in a module-level store in `lib/`, reached only from Next.js API routes in `app/api/`, where the Supabase calls would sit. State resets when the server restarts. No migration tooling or `DATABASE_URL` is set up.
+
+8. **Foundation tooling**  
+   ESLint (next config + eslint-config-prettier), Prettier, Husky with lint-staged on pre-commit, and commitlint with the Conventional Commits config on commit-msg. Scripts: `dev`, `build`, `start`, `lint`, `typecheck` (`next typegen` then `tsc --noEmit`), `format`, `format:check`. Styling is Tailwind CSS v4 through `app/globals.css`, as the architecture names it; the design tokens and fonts are left for the first design prompt, as docs/design-system.md says.
