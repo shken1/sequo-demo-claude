@@ -23,3 +23,6 @@
 
 8. **Foundation tooling**  
    ESLint (next config + eslint-config-prettier), Prettier, Husky with lint-staged on pre-commit, and commitlint with the Conventional Commits config on commit-msg. Scripts: `dev`, `build`, `start`, `lint`, `typecheck` (`next typegen` then `tsc --noEmit`), `format`, `format:check`. Styling is Tailwind CSS v4 through `app/globals.css`, as the architecture names it; the design tokens and fonts are left for the first design prompt, as docs/design-system.md says.
+
+9. **Shared streak record without Supabase (step 1)**  
+   The `streaks` table is a single in-memory row in `lib/streak-store.ts` with the step's columns: `id`, `streakLength`, `lastLoggedDate` and `createdAt`. The initial insert (length 0, last logged date set to today, as the step's prompt asks) happens on first use. `GET /api/streak` reads the row. A development-only `PATCH /api/streak` with `{ "streakLength": n }` stands in for editing the row in the database dashboard; it rejects anything but a non-negative integer with 400, and production returns 404. The prompt's RLS policy ("any authenticated user") has no in-memory equivalent; access rules are left to step 2. The step adds `lastLoggedDate`, which the data model in architecture.md and invariant 5 do not list; the step's prompt and the development plan both ask for it.
