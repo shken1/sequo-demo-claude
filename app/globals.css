@@ -1,1 +1,231 @@
 @import "tailwindcss";
+
+/*
+ * Cyberpunk Vintage tokens (docs/design-system.md). Colours and fonts live in @theme so they are
+ * both the CSS custom properties the design system names and Tailwind utilities (bg-surface,
+ * text-muted, font-heading, ...). The font families point at the next/font variables set on <html>.
+ */
+@theme {
+  --color-background: #0a0a0a;
+  --color-surface: #1f1a17;
+  --color-text: #e0e0e0;
+  --color-muted: #9a8e7f;
+  --color-border: #3a2f28;
+  --color-primary: #00f3ff;
+  --color-on-primary: #111111;
+  --color-accent: #ff00aa;
+  --font-heading:
+    var(--font-press-start-2p), "Press Start 2P", ui-sans-serif, system-ui, sans-serif;
+  --font-body: var(--font-vt323), "VT323", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-vt323), "VT323", ui-monospace, monospace;
+}
+
+:root {
+  --radius: 4px;
+  --space-unit: 4px;
+  --control-height: 40px;
+
+  /* Texture layers, built once and reused by the base layer and the surface card. */
+  --texture-scanlines: repeating-linear-gradient(
+    to bottom,
+    rgb(0 0 0 / 0.38) 0,
+    rgb(0 0 0 / 0.38) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  --texture-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --texture-paper: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='turbulence' baseFrequency='0.04 0.6' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.6 0 0 0 0 0.55 0 0 0 0 0.5 0 0 0 0.35 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)'/%3E%3C/svg%3E");
+  --glow-primary:
+    0 0 4px color-mix(in srgb, var(--color-primary) 70%, transparent),
+    0 0 14px color-mix(in srgb, var(--color-primary) 40%, transparent);
+  --glow-accent:
+    0 0 4px color-mix(in srgb, var(--color-accent) 70%, transparent),
+    0 0 14px color-mix(in srgb, var(--color-accent) 40%, transparent);
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    min-height: 100dvh;
+    background-color: var(--color-background);
+    color: var(--color-text);
+    font-family: var(--font-body);
+    font-size: 1.25rem;
+    line-height: 1.35;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Heavy scanlines and CRT grain over the whole screen; never intercepts input. */
+  body::before,
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    pointer-events: none;
+  }
+
+  body::before {
+    background-image: var(--texture-scanlines);
+  }
+
+  body::after {
+    background-image: var(--texture-grain);
+    opacity: 0.07;
+    mix-blend-mode: overlay;
+  }
+
+  ::selection {
+    background-color: var(--color-accent);
+    color: var(--color-on-primary);
+  }
+}
+
+/* A worn surface card: scanlines and paper noise over the surface colour. */
+@utility surface-card {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background-color: var(--color-surface);
+  background-image: var(--texture-scanlines), var(--texture-paper), var(--texture-grain);
+  background-blend-mode: normal, soft-light, overlay;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.04),
+    0 12px 40px rgb(0 0 0 / 0.6);
+}
+
+@utility glow-primary {
+  text-shadow: var(--glow-primary);
+}
+
+@utility glow-accent {
+  text-shadow: var(--glow-accent);
+}
+
+/* Shared control shapes, so every input and button in the app reads the same. */
+@utility field {
+  display: block;
+  width: 100%;
+  height: var(--control-height);
+  padding-inline: calc(var(--space-unit) * 3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: 1.25rem;
+  box-shadow: inset 0 2px 0 rgb(0 0 0 / 0.45);
+  transition:
+    border-color 120ms,
+    box-shadow 120ms;
+
+  &::placeholder {
+    color: var(--color-muted);
+  }
+
+  &:focus-visible {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow:
+      inset 0 2px 0 rgb(0 0 0 / 0.45),
+      0 0 0 2px var(--color-primary),
+      0 0 12px color-mix(in srgb, var(--color-primary) 45%, transparent);
+  }
+}
+
+@utility btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--control-height);
+  padding-inline: calc(var(--space-unit) * 4);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius);
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+  font-family: var(--font-heading);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow:
+    inset 2px 2px 0 rgb(255 255 255 / 0.55),
+    inset -2px -3px 0 rgb(0 0 0 / 0.35),
+    0 0 10px color-mix(in srgb, var(--color-primary) 35%, transparent);
+  transition:
+    filter 120ms,
+    box-shadow 120ms,
+    transform 60ms;
+
+  &:hover:not(:disabled) {
+    filter: brightness(1.12) saturate(1.2);
+    box-shadow:
+      inset 2px 2px 0 rgb(255 255 255 / 0.6),
+      inset -2px -3px 0 rgb(0 0 0 / 0.35),
+      0 0 18px color-mix(in srgb, var(--color-primary) 70%, transparent),
+      0 0 36px color-mix(in srgb, var(--color-primary) 35%, transparent);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(1px);
+    box-shadow:
+      inset -2px -2px 0 rgb(255 255 255 / 0.35),
+      inset 2px 3px 0 rgb(0 0 0 / 0.35);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 3px;
+  }
+
+  &:disabled {
+    cursor: progress;
+    opacity: 0.55;
+    filter: saturate(0.4);
+    box-shadow: inset -2px -2px 0 rgb(0 0 0 / 0.35);
+  }
+}
+
+@utility btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--control-height);
+  padding-inline: calc(var(--space-unit) * 4);
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius);
+  background-color: var(--color-surface);
+  color: var(--color-accent);
+  font-family: var(--font-heading);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-shadow: var(--glow-accent);
+  cursor: pointer;
+  box-shadow:
+    inset 1px 1px 0 rgb(255 255 255 / 0.08),
+    inset -2px -2px 0 rgb(0 0 0 / 0.45);
+  transition:
+    box-shadow 120ms,
+    background-color 120ms;
+
+  &:hover:not(:disabled) {
+    background-color: color-mix(in srgb, var(--color-accent) 12%, var(--color-surface));
+    box-shadow:
+      inset 1px 1px 0 rgb(255 255 255 / 0.08),
+      inset -2px -2px 0 rgb(0 0 0 / 0.45),
+      0 0 16px color-mix(in srgb, var(--color-accent) 55%, transparent);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 3px;
+  }
+
+  &:disabled {
+    cursor: progress;
+    opacity: 0.55;
+  }
+}

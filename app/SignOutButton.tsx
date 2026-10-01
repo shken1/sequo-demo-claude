@@ -15,7 +15,13 @@ export function SignOutButton() {
   }
 
   return (
-    <button type="button" onClick={handleClick} disabled={pending} aria-busy={pending}>
+    <button
+      type="button"
+      onClick={handleClick}
+      disabled={pending}
+      aria-busy={pending}
+      className="btn-secondary w-full sm:w-auto"
+    >
       {pending ? "Signing out…" : "Sign out"}
     </button>
   );

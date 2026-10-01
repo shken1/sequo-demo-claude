@@ -68,15 +68,37 @@ export function AuthForm({
 
   return (
     <section aria-labelledby={`${idPrefix}-title`}>
-      <h2 id={`${idPrefix}-title`}>{title}</h2>
-      <form onSubmit={handleSubmit} aria-describedby={message ? messageId : undefined} noValidate>
-        <div>
-          <label htmlFor={`${idPrefix}-email`}>Email</label>
-          <input id={`${idPrefix}-email`} name="email" type="email" autoComplete="email" required />
+      <h2
+        id={`${idPrefix}-title`}
+        className="glow-accent flex items-center gap-2 font-heading text-xs leading-relaxed tracking-[0.2em] text-accent uppercase"
+      >
+        <span aria-hidden="true" className="inline-block size-2 bg-accent" />
+        {title}
+      </h2>
+      <form
+        onSubmit={handleSubmit}
+        aria-describedby={message ? messageId : undefined}
+        noValidate
+        className="mt-4 flex flex-col gap-4"
+      >
+        <div className="flex flex-col gap-1">
+          <label htmlFor={`${idPrefix}-email`} className="text-xl tracking-wide text-muted">
+            Email
+          </label>
+          <input
+            id={`${idPrefix}-email`}
+            name="email"
+            type="email"
+            autoComplete="email"
+            required
+            className="field"
+          />
         </div>
         {withPassword ? (
-          <div>
-            <label htmlFor={`${idPrefix}-password`}>Password</label>
+          <div className="flex flex-col gap-1">
+            <label htmlFor={`${idPrefix}-password`} className="text-xl tracking-wide text-muted">
+              Password
+            </label>
             <input
               id={`${idPrefix}-password`}
               name="password"
@@ -84,15 +106,24 @@ export function AuthForm({
               autoComplete={passwordAutoComplete}
               minLength={8}
               required
+              className="field"
             />
           </div>
         ) : null}
         {message ? (
-          <p id={messageId} role={status === "error" ? "alert" : "status"}>
+          <p
+            id={messageId}
+            role={status === "error" ? "alert" : "status"}
+            className={
+              status === "error"
+                ? "glow-accent rounded-(--radius) border border-accent bg-background/60 px-3 py-2 text-accent"
+                : "rounded-(--radius) border border-primary/60 bg-background/60 px-3 py-2 text-primary"
+            }
+          >
             {message}
           </p>
         ) : null}
-        <button type="submit" disabled={pending} aria-busy={pending}>
+        <button type="submit" disabled={pending} aria-busy={pending} className="btn-primary w-full">
           {pending ? pendingLabel : submitLabel}
         </button>
       </form>

@@ -8,14 +8,21 @@ export default async function HomePage() {
   const user = await requireUser();
 
   return (
-    <main>
-      <header>
-        <p>
-          Signed in as <span data-testid="current-user">{user.email}</span>
+    <main className="mx-auto flex min-h-dvh w-full max-w-3xl flex-col gap-8 px-4 py-8 sm:px-8 sm:py-12">
+      <header className="surface-card flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+        <p className="min-w-0 text-muted">
+          Signed in as{" "}
+          <span data-testid="current-user" className="font-mono break-all text-text">
+            {user.email}
+          </span>
         </p>
         <SignOutButton />
       </header>
-      <h1>Shared Streak</h1>
+      <section className="surface-card px-4 py-8 sm:px-8 sm:py-12">
+        <h1 className="glow-primary text-center font-heading text-lg leading-relaxed tracking-[0.18em] text-primary sm:text-2xl">
+          Shared Streak
+        </h1>
+      </section>
     </main>
   );
 }
