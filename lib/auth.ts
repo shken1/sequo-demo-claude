@@ -6,7 +6,7 @@ import type { NextResponse } from "next/server";
 
 import type { SessionUser } from "@/types/auth";
 
-import { createSession, deleteSession, sessionUser } from "./auth-store";
+import { createSessionToken, readSessionToken } from "./session-token";
 
 export const SESSION_COOKIE = "session";
 
@@ -15,7 +15,7 @@ export const MIN_PASSWORD_LENGTH = 8;
 
 export async function getCurrentUser(): Promise<SessionUser | null> {
   const token = (await cookies()).get(SESSION_COOKIE)?.value;
-  return token ? sessionUser(token) : null;
+  return token ? readSessionToken(token) : null;
 }
 
 /** Call at the top of every protected page: redirects to /signin without a session. */
@@ -26,7 +26,7 @@ export async function requireUser(): Promise<SessionUser> {
 }
 
 export function setSessionCookie(response: NextResponse, user: SessionUser): void {
-  response.cookies.set(SESSION_COOKIE, createSession(user.id), {
+  response.cookies.set(SESSION_COOKIE, createSessionToken(user), {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
@@ -35,9 +35,7 @@ export function setSessionCookie(response: NextResponse, user: SessionUser): voi
   });
 }
 
-export async function clearSession(response: NextResponse): Promise<void> {
-  const token = (await cookies()).get(SESSION_COOKIE)?.value;
-  if (token) deleteSession(token);
+export function clearSession(response: NextResponse): void {
   response.cookies.delete(SESSION_COOKIE);
 }
 

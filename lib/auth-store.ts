@@ -5,7 +5,8 @@ import { randomBytes, randomUUID, scryptSync, timingSafeEqual } from "node:crypt
 import type { SessionUser } from "@/types/auth";
 
 // In-memory stand-in for Supabase Auth (see docs/decisions.md #7, #10).
-// Kept on globalThis so accounts and sessions survive dev-server module reloads.
+// Kept on globalThis so accounts survive dev-server module reloads. Sessions are signed tokens
+// (lib/session-token.ts), not entries here.
 interface StoredUser extends SessionUser {
   readonly salt: string | null;
   readonly passwordHash: string | null;
@@ -18,7 +19,6 @@ interface MagicLink {
 
 interface AuthStore {
   readonly users: Map<string, StoredUser>;
-  readonly sessions: Map<string, string>;
   readonly magicLinks: Map<string, MagicLink>;
 }
 
@@ -27,7 +27,7 @@ const MAGIC_LINK_TTL_MS = 15 * 60 * 1000;
 const globalStore = globalThis as typeof globalThis & { __authStore?: AuthStore };
 
 function store(): AuthStore {
-  globalStore.__authStore ??= { users: new Map(), sessions: new Map(), magicLinks: new Map() };
+  globalStore.__authStore ??= { users: new Map(), magicLinks: new Map() };
   return globalStore.__authStore;
 }
 
@@ -78,23 +78,4 @@ export function redeemMagicLink(token: string): SessionUser | null {
     users.set(link.email, user);
   }
   return { id: user.id, email: user.email };
-}
-
-export function createSession(userId: string): string {
-  const token = randomBytes(32).toString("hex");
-  store().sessions.set(token, userId);
-  return token;
-}
-
-export function sessionUser(token: string): SessionUser | null {
-  const userId = store().sessions.get(token);
-  if (!userId) return null;
-  for (const user of store().users.values()) {
-    if (user.id === userId) return { id: user.id, email: user.email };
-  }
-  return null;
-}
-
-export function deleteSession(token: string): void {
-  store().sessions.delete(token);
 }

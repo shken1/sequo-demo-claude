@@ -39,3 +39,6 @@
     - **Dev PATCH.** The development-only `PATCH /api/streak` also accepts `lastLoggedDate`, so a later day can be simulated by hand.
 
     The step's done-when asks for the second partner to "increment it again" right after the first, but the prompt allows one log per day. The once-per-day rule is kept, and the second increment happens on the next day.
+
+13. **Signed session tokens for serverless hosting**  
+    On Vercel, pages and API routes can run in separate processes, so an in-memory session store made by an API route was invisible to the root page. Signed-in partners were sent back to `/signin`. A session is now a signed token in the `session` cookie (`lib/session-token.ts`): the user's id and email, plus an expiry 30 days out, signed with HMAC-SHA256. Any process can check it without a shared store. The app runs with no environment variables, so `next.config.ts` generates a random signing key per build (and per dev-server start) and inlines it into the server bundles; nothing secret is committed. Every redeploy therefore signs everyone out, which matches the in-memory data being reset anyway. Sign-out deletes the cookie; a token cannot be revoked before it expires. `lib/streak-api.ts` now takes the protocol for its own API call from `x-forwarded-proto` instead of assuming https in production.

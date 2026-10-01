@@ -9,9 +9,10 @@ import type { StreakRecord } from "@/types/streak";
  * API routes), forwarding the visitor's cookies so the route sees the same session.
  */
 export async function fetchStreak(): Promise<StreakRecord> {
-  const host = (await headers()).get("host");
+  const requestHeaders = await headers();
+  const host = requestHeaders.get("host");
   if (!host) throw new Error("Missing host header.");
-  const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
+  const protocol = requestHeaders.get("x-forwarded-proto")?.split(",")[0]?.trim() ?? "http";
   const response = await fetch(`${protocol}://${host}/api/streak`, {
     headers: { cookie: (await cookies()).toString() },
     cache: "no-store",
