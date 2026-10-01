@@ -21,8 +21,8 @@ export default async function HomePage() {
         </p>
         <SignOutButton />
       </header>
-      <section className="surface-card px-4 py-8 sm:px-8 sm:py-12">
-        <h1 className="glow-primary text-center font-heading text-lg leading-relaxed tracking-[0.18em] text-primary sm:text-2xl">
+      <section className="surface-card my-auto flex flex-col items-center gap-8 px-4 py-10 sm:px-8 sm:py-14">
+        <h1 className="glow-primary text-center font-heading text-base leading-relaxed tracking-[0.2em] text-text uppercase sm:text-2xl">
           Shared Streak
         </h1>
         <StreakLength streakLength={streak.streakLength} />

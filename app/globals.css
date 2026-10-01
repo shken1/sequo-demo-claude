@@ -104,6 +104,36 @@
   text-shadow: var(--glow-accent);
 }
 
+/* The intense glow for the one number that matters on a screen. */
+@utility glow-primary-strong {
+  text-shadow:
+    0 0 2px color-mix(in srgb, var(--color-primary) 90%, transparent),
+    0 0 10px color-mix(in srgb, var(--color-primary) 70%, transparent),
+    0 0 28px color-mix(in srgb, var(--color-primary) 45%, transparent),
+    0 0 56px color-mix(in srgb, var(--color-primary) 25%, transparent);
+}
+
+/* A slow neon flicker for waiting text; still when the viewer asks for less motion. */
+@utility neon-pulse {
+  animation: neon-pulse 1.6s ease-in-out infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+@keyframes neon-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    text-shadow: var(--glow-primary);
+  }
+  50% {
+    opacity: 0.55;
+    text-shadow: none;
+  }
+}
+
 /* Shared control shapes, so every input and button in the app reads the same. */
 @utility field {
   display: block;
