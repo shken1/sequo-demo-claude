@@ -4,9 +4,9 @@ interface StreakLengthProps {
 
 export function StreakLength({ streakLength }: StreakLengthProps) {
   return (
-    <p className="flex flex-col items-center gap-3 text-center">
+    <p className="flex flex-col items-center gap-4 text-center">
       <span
-        className="glow-primary-strong font-mono text-[8rem] leading-[0.8] text-primary tabular-nums sm:text-[12rem]"
+        className="glow-primary-strong font-heading text-7xl leading-none tracking-[0.12em] text-primary tabular-nums sm:text-[8rem]"
         data-testid="streak-length"
       >
         {streakLength}

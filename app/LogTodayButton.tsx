@@ -32,13 +32,30 @@ export function LogTodayButton() {
 
   const pending = status === "pending";
 
+  const messageClass =
+    status === "error"
+      ? "glow-accent border-accent text-accent"
+      : status === "logged"
+        ? "glow-primary border-primary/60 text-primary"
+        : "border-border text-muted";
+
   return (
-    <div>
-      <button type="button" onClick={handleClick} disabled={pending} aria-busy={pending}>
+    <div className="flex w-full flex-col items-center gap-4">
+      <button
+        type="button"
+        onClick={handleClick}
+        disabled={pending}
+        aria-busy={pending}
+        className="btn-primary w-full px-8 py-1 font-body text-3xl tracking-[0.15em] normal-case sm:w-auto sm:min-w-72"
+      >
         {pending ? "Logging…" : "Log Today"}
       </button>
       {status !== "idle" && status !== "pending" ? (
-        <p role={status === "error" ? "alert" : "status"} data-testid="log-today-message">
+        <p
+          role={status === "error" ? "alert" : "status"}
+          data-testid="log-today-message"
+          className={`w-full max-w-md rounded-(--radius) border bg-background/60 px-4 py-3 text-center text-2xl ${messageClass}`}
+        >
           {MESSAGES[status]}
         </p>
       ) : null}

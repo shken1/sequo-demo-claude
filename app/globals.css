@@ -189,7 +189,8 @@
     box-shadow 120ms,
     transform 60ms;
 
-  &:hover:not(:disabled) {
+  &:hover:not(:disabled),
+  &:focus-visible:not(:disabled) {
     filter: brightness(1.12) saturate(1.2);
     box-shadow:
       inset 2px 2px 0 rgb(255 255 255 / 0.6),
