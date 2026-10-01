@@ -1,14 +1,28 @@
 import { NextResponse } from "next/server";
 
-import { selectStreak, updateStreak } from "@/lib/streak-store";
+import { getCurrentUser } from "@/lib/auth";
+import { logToday, selectStreak, updateStreak } from "@/lib/streak-store";
+import type { LogTodayResponse } from "@/types/log";
 import type { StreakRecord } from "@/types/streak";
 
 export const dynamic = "force-dynamic";
+
+// Reading and logging live in this one route so they share the in-memory row: on serverless
+// hosting each route can run in its own process (decisions #14).
 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 export function GET(): NextResponse<StreakRecord> {
   return NextResponse.json(selectStreak());
+}
+
+/** Logs today on the shared streak for the signed-in partner. Takes no body. */
+export async function POST(): Promise<NextResponse<LogTodayResponse | { error: string }>> {
+  if (!(await getCurrentUser())) {
+    return NextResponse.json({ error: "Sign in first." }, { status: 401 });
+  }
+  const { outcome, streak } = logToday();
+  return NextResponse.json({ outcome, streakLength: streak.streakLength });
 }
 
 /**

@@ -20,7 +20,7 @@ export function LogTodayButton() {
   async function handleClick(): Promise<void> {
     setStatus("pending");
     try {
-      const response = await fetch("/api/streak/log", { method: "POST" });
+      const response = await fetch("/api/streak", { method: "POST" });
       if (!response.ok) throw new Error(`Log request failed with ${response.status}.`);
       const result = (await response.json()) as LogTodayResponse;
       setStatus(result.outcome);

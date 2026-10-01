@@ -42,3 +42,10 @@
 
 13. **Signed session tokens for serverless hosting**  
     On Vercel, pages and API routes can run in separate processes, so an in-memory session store made by an API route was invisible to the root page. Signed-in partners were sent back to `/signin`. A session is now a signed token in the `session` cookie (`lib/session-token.ts`): the user's id and email, plus an expiry 30 days out, signed with HMAC-SHA256. Any process can check it without a shared store. The app runs with no environment variables, so `next.config.ts` generates a random signing key per build (and per dev-server start) and inlines it into the server bundles; nothing secret is committed. Every redeploy therefore signs everyone out, which matches the in-memory data being reset anyway. Sign-out deletes the cookie; a token cannot be revoked before it expires. `lib/streak-api.ts` now takes the protocol for its own API call from `x-forwarded-proto` instead of assuming https in production.
+
+14. **One route per in-memory store**  
+    On Vercel each route file can run in its own process, so writes in one route were invisible to reads in another. A log through `/api/streak/log` did not show in `GET /api/streak`. Each in-memory store is now reached from exactly one route:
+    - **Streak:** `GET /api/streak` reads it and `POST /api/streak` logs today; the development-only `PATCH` is there too.
+    - **Auth:** `/api/auth/[action]` handles `sign-up`, `sign-in`, `magic-link` and `sign-out` (POST) and `magic` (GET, redeems a link).
+
+    The client endpoints for sign-up, sign-in, sign-out and the magic-link request did not change. Logging moved from `/api/streak/log` to `POST /api/streak`, and magic links now point to `/api/auth/magic`.
