@@ -5,28 +5,50 @@ import type { StreakRecord } from "@/types/streak";
 
 export const dynamic = "force-dynamic";
 
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+
 export function GET(): NextResponse<StreakRecord> {
   return NextResponse.json(selectStreak());
 }
 
 /**
- * Development-only stand-in for editing the row in the database dashboard (step 1 verification).
- * Body: { "streakLength": <non-negative integer> }.
+ * Development-only stand-in for editing the row in the database dashboard.
+ * Body: { "streakLength"?: <non-negative integer>, "lastLoggedDate"?: "YYYY-MM-DD" | null }.
  */
 export async function PATCH(request: Request): Promise<NextResponse> {
   if (process.env.NODE_ENV === "production") {
     return NextResponse.json({ error: "Not available." }, { status: 404 });
   }
   const body: unknown = await request.json().catch(() => null);
-  const streakLength =
-    typeof body === "object" && body !== null && "streakLength" in body
-      ? (body as { streakLength: unknown }).streakLength
-      : undefined;
-  if (typeof streakLength !== "number" || !Number.isInteger(streakLength) || streakLength < 0) {
-    return NextResponse.json(
-      { error: "streakLength must be a non-negative integer." },
-      { status: 400 },
-    );
+  if (typeof body !== "object" || body === null) {
+    return NextResponse.json({ error: "Malformed request." }, { status: 400 });
   }
-  return NextResponse.json(updateStreak({ streakLength }));
+  const changes: { streakLength?: number; lastLoggedDate?: string | null } = {};
+  if ("streakLength" in body) {
+    const { streakLength } = body as { streakLength: unknown };
+    if (typeof streakLength !== "number" || !Number.isInteger(streakLength) || streakLength < 0) {
+      return NextResponse.json(
+        { error: "streakLength must be a non-negative integer." },
+        { status: 400 },
+      );
+    }
+    changes.streakLength = streakLength;
+  }
+  if ("lastLoggedDate" in body) {
+    const { lastLoggedDate } = body as { lastLoggedDate: unknown };
+    if (
+      lastLoggedDate !== null &&
+      (typeof lastLoggedDate !== "string" || !ISO_DATE.test(lastLoggedDate))
+    ) {
+      return NextResponse.json(
+        { error: "lastLoggedDate must be YYYY-MM-DD or null." },
+        { status: 400 },
+      );
+    }
+    changes.lastLoggedDate = lastLoggedDate;
+  }
+  if (Object.keys(changes).length === 0) {
+    return NextResponse.json({ error: "Nothing to change." }, { status: 400 });
+  }
+  return NextResponse.json(updateStreak(changes));
 }

@@ -16,12 +16,15 @@ export function todayIsoDate(now: Date = new Date()): string {
   return `${y}-${m}-${d}`;
 }
 
-/** The single shared row; the initial insert happens once, on first use. */
+/**
+ * The single shared row; the initial insert happens once, on first use. The last logged date
+ * starts empty: seeding it with today would make the first "Log Today" a no-op (decisions #12).
+ */
 export function selectStreak(): StreakRecord {
   globalStore.__streakRow ??= {
     id: randomUUID(),
     streakLength: 0,
-    lastLoggedDate: todayIsoDate(),
+    lastLoggedDate: null,
     createdAt: new Date().toISOString(),
   };
   return globalStore.__streakRow;
@@ -32,4 +35,20 @@ export function updateStreak(
 ): StreakRecord {
   globalStore.__streakRow = { ...selectStreak(), ...changes };
   return globalStore.__streakRow;
+}
+
+export interface LogTodayResult {
+  readonly outcome: "logged" | "already-logged";
+  readonly streak: StreakRecord;
+}
+
+/** Adds one to the shared streak and stamps today, unless today is already logged. */
+export function logToday(): LogTodayResult {
+  const streak = selectStreak();
+  const today = todayIsoDate();
+  if (streak.lastLoggedDate === today) return { outcome: "already-logged", streak };
+  return {
+    outcome: "logged",
+    streak: updateStreak({ streakLength: streak.streakLength + 1, lastLoggedDate: today }),
+  };
 }

@@ -32,3 +32,10 @@
 
 11. **Streak display (step 3)**  
     The root page reads the shared record through `GET /api/streak` (invariant 2: data reads go through API routes). `lib/streak-api.ts` makes that request from the server, forwarding the visitor's cookies so the route sees the same session, with `cache: "no-store"` so every view shows the live value. `app/StreakLength.tsx` shows the length in large VT323 in the primary (neon cyan) colour, as the step's prompt asks. `app/loading.tsx` is the loading state, and `app/error.tsx` is the error state, with a "Try again" button that calls the route segment's `reset()`.
+
+12. **Log Today (step 4)**  
+    `POST /api/streak/log` (a route handler, as invariant 2 requires) answers 401 without a session. Otherwise it calls `logToday()` in `lib/streak-store.ts`, which adds one to the streak and sets the last logged date to today, unless today is already logged. Today is the server's local date. `app/LogTodayButton.tsx` posts to the route, shows the outcome ("Today is logged…" or "Today is already logged."), and refreshes the page so the displayed value is re-read from `GET /api/streak`. Two changes outside this step's files were needed:
+    - **Seed date.** Step 1 seeded the row's last logged date with today, so on the first day "Log Today" could never count. The seed now leaves it empty.
+    - **Dev PATCH.** The development-only `PATCH /api/streak` also accepts `lastLoggedDate`, so a later day can be simulated by hand.
+
+    The step's done-when asks for the second partner to "increment it again" right after the first, but the prompt allows one log per day. The once-per-day rule is kept, and the second increment happens on the next day.

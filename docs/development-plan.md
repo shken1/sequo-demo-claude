@@ -21,7 +21,7 @@ A web-based habit tracker for two equal partners that maintains one shared strea
 - [x] Display current shared streak
       Build the main tracker view that shows the current streak length using the shared record.
 
-- [ ] Implement streak logging
+- [x] Implement streak logging
       Add the ability for either partner to log today and extend the shared streak.
 
 ### Deployment

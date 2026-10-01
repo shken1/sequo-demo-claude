@@ -2,6 +2,7 @@ import { requireUser } from "@/lib/auth";
 import { fetchStreak } from "@/lib/streak-api";
 
 import { SignOutButton } from "./SignOutButton";
+import { LogTodayButton } from "./LogTodayButton";
 import { StreakLength } from "./StreakLength";
 
 export const dynamic = "force-dynamic";
@@ -26,6 +27,7 @@ export default async function HomePage() {
           Shared Streak
         </h1>
         <StreakLength streakLength={streak.streakLength} />
+        <LogTodayButton />
       </section>
     </main>
   );
